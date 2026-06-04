@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autoevaluación Interactiva: Sistemas en la Nube</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --secondary: #0f172a;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #334155;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .sticky-tracker {
+            position: sticky;
+            top: 0;
+            background-color: var(--card-bg);
+            border-bottom: 2px solid var(--border);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .progress-container {
+            flex-grow: 1;
+            margin: 0 20px;
+            background-color: var(--border);
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            background-color: var(--success);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .stats-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            background-color: #e2e8f0;
+            margin: 20px auto;
+            max-width: 1000px;
+            border-radius: 8px;
+            padding: 5px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 18px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-light);
+            border-radius: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background-color: var(--card-bg);
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .activity-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            transition: transform 0.2s;
+        }
+
+        .activity-card h3 {
+            margin-bottom: 15px;
+            color: var(--secondary);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .q-number {
+            background-color: var(--border);
+            color: var(--secondary);
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        /* Formatos Específicos */
+        .options-list {
+            list-style: none;
+            margin-bottom: 15px;
+        }
+
+        .option-item {
+            margin-bottom: 10px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .option-label:hover {
+            background-color: #f1f5f9;
+        }
+
+        .option-label input {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .actions-block {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button.btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-check { background-color: var(--primary); color: white; }
+        .btn-check:hover { background-color: #1d4ed8; }
+        .btn-hint { background-color: #cbd5e1; color: var(--text); }
+        .btn-hint:hover { background-color: #b4bfd0; }
+
+        .hint-box {
+            background-color: #fffbeb;
+            border-left: 4px solid var(--warning);
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 0 8px 8px 0;
+            display: none;
+            font-size: 0.95rem;
+            color: #92400e;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .feedback-box.correct {
+            background-color: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .feedback-box.incorrect {
+            background-color: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+        }
+
+        /* Verdadero o Falso */
+        .tf-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .tf-btn {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background-color: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .tf-btn.true-btn:hover { border-color: var(--success); color: var(--success); }
+        .tf-btn.false-btn:hover { border-color: var(--error); color: var(--error); }
+        .tf-btn.selected { color: white; }
+        .tf-btn.true-btn.selected { background-color: var(--success); border-color: var(--success); }
+        .tf-btn.false-btn.selected { background-color: var(--error); border-color: var(--error); }
+
+        /* Rellenar Huecos */
+        .blank-input {
+            border: none;
+            border-bottom: 2px solid var(--primary-light);
+            padding: 2px 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-align: center;
+            outline: none;
+            width: 140px;
+            background: #f1f5f9;
+            border-radius: 4px 4px 0 0;
+        }
+
+        /* Emparejamiento */
+        .match-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .match-grid { grid-template-columns: 1fr; }
+        }
+
+        .match-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .match-item {
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .match-item.selected {
+            border-color: var(--primary-light);
+            background-color: #eff6ff;
+        }
+
+        .match-item.paired {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
+        /* Flashcards */
+        .flashcard-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .flashcard {
+            width: 100%;
+            max-width: 500px;
+            height: 280px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border-radius: 16px;
+        }
+
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .flashcard-front {
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            color: var(--secondary);
+        }
+
+        .flashcard-front h4 { color: var(--primary); margin-bottom: 10px; }
+
+        .flashcard-back {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .flash-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .info-card {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 15px;
+            border-radius: 8px;
+            color: #166534;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Centro de Autoevaluación Digital</h1>
+        <p>Unidad Didáctica 4: Sistemas Basados en la Nube (Cloud Computing). Pon a prueba tus conocimientos teórico-prácticos con este ecosistema interactivo de 50 actividades.</p>
+    </header>
+
+    <div class="sticky-tracker">
+        <div><strong>Tu Progreso Global:</strong> <span id="progress-txt">0/50</span> completadas</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="global-progress"></div>
+        </div>
+        <div class="stats-badge">Éxito: <span id="score-txt">0%</span></div>
+    </div>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('tab-test')">1. Opción Múltiple (1-20)</button>
+        <button class="tab-btn" onclick="switchTab('tab-tf')">2. Verdadero / Falso (21-30)</button>
+        <button class="tab-btn" onclick="switchTab('tab-blanks')">3. Rellenar Huecos (31-40)</button>
+        <button class="tab-btn" onclick="switchTab('tab-match')">4. Emparejar (41-50)</button>
+        <button class="tab-btn" onclick="switchTab('tab-flash')">5. Flashcards de Repaso</button>
+    </div>
+
+    <div class="main-container">
+
+        <div id="tab-test" class="tab-content active">
+            <div class="activity-card" id="card-q1">
+                <h3><span class="q-number">1</span>¿Qué es con precisión la computación en la nube?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q1" value="A"> A) El uso exclusivo de servidores físicos locales en la empresa.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q1" value="B"> B) Un sistema que utiliza recursos y servicios informáticos disponibles a través de Internet.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q1" value="C"> C) Discos duros personales sin sincronización externa.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q1" value="D"> D) Una red interna privada que no requiere conexión web.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q1', 'B', '¡Correcto! El Cloud computing descentraliza la infraestructura usando servidores de Internet.', 'Revisa la definición básica del concepto en la flashcard 1.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q1')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q1">Piensa en qué medio físico o virtual se apoyan plataformas como Google Drive o Dropbox para guardar tus cosas sin ocupar espacio local.</div>
+                <div class="feedback-box" id="feed-q1"></div>
+            </div>
+
+            <div class="activity-card" id="card-q2">
+                <h3><span class="q-number">2</span>¿Qué función computacional avanzada diferencia a la nube del alojamiento tradicional básico?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q2" value="A"> A) Únicamente responde a solicitudes de archivos estáticos archivados.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q2" value="B"> B) Permite ejecutar de forma remota programas que procesan y modifican los datos del cliente.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q2" value="C"> C) Almacena información sin capacidad de procesamiento dinámico.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q2" value="D"> D) Limita el acceso a un solo dispositivo local previamente configurado.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q2', 'B', '¡Excelente! Los servidores de la nube computan, es decir, procesan algoritmos vivos en remoto.', 'Recuerda que no es solo un disco duro externo, ejecuta software completo.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q2')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q2">Al usar Google Docs, ¿el documento se procesa en tu ordenador o se recalcula directamente de forma colaborativa en el servidor externo?</div>
+                <div class="feedback-box" id="feed-q2"></div>
+            </div>
+
+            <div class="activity-card" id="card-q3">
+                <h3><span class="q-number">3</span>¿Qué significa que la infraestructura cloud sea 'escalable bajo demanda'?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q3" value="A"> A) Que tiene una capacidad rígida y fija que nunca puede modificarse.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q3" value="B"> B) Que las organizaciones pueden contratar y pagar exactamente por los recursos computacionales que precisan en cada instante.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q3" value="C"> C) Que requiere una inversión inicial fija muy alta en hardware para prever picos anuales.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q3" value="D"> D) Que la velocidad de la red se adapta según la altura física de la oficina.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q3', 'B', '¡Correcto! El escalado elástico permite crecer en servidores virtuales inmediatamente ante repuntes de tráfico.', 'Flashcard 10 y 37.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q3')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q3">Se asocia al concepto elástico. Si tienes una tienda online y llega el Black Friday, ¿qué flexibilidad necesitas?</div>
+                <div class="feedback-box" id="feed-q3"></div>
+            </div>
+
+            <div class="activity-card" id="card-q4">
+                <h3><span class="q-number">4</span>¿En qué consiste de forma exacta el modelo de servicio IaaS (Infraestructura como Servicio)?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q4" value="A"> A) Te dan la aplicación final lista para el cliente, como Outlook.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q4" value="B"> B) El alquiler de componentes lógicos básicos de cómputo: procesamiento, almacenamiento virtual, redes y virtualización.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q4" value="C"> C) Un entorno específico dedicado para que los programadores tiren código sin preocuparse de nada más.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q4" value="D"> D) Comprar equipos físicos de computación mediante cuotas de leasing.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q4', 'B', '¡Magnífico! IaaS proporciona los bloques fundamentales de infraestructura pura desprovistos de software preconfigurado.', 'Flashcard 11.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q4')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q4">IaaS equivale a alquilar los planos, cimientos y parcelas virtuales (como máquinas vacías de Amazon EC2).</div>
+                <div class="feedback-box" id="feed-q4"></div>
+            </div>
+
+            <div class="activity-card" id="card-q5">
+                <h3><span class="q-number">5</span>Google App Engine o Salesforce (entornos de desarrollo y despliegue rápido) son ejemplos de:</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q5" value="A"> A) IaaS</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q5" value="B"> B) SaaS</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q5" value="C"> C) PaaS</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q5" value="D"> D) On-Premise tradicional</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q5', 'C', '¡Correcto! PaaS (Plataforma como Servicio) ofrece las herramientas de desarrollo listas sobre una arquitectura oculta.', 'Flashcard 12.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q5')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q5">Son plataformas pensadas para programadores. Evitan tener que actualizar el sistema operativo subyacente.</div>
+                <div class="feedback-box" id="feed-q5"></div>
+            </div>
+
+            <div class="activity-card" id="card-q6">
+                <h3><span class="q-number">6</span>El nivel cloud que suministra aplicaciones completas en ejecución directa para el usuario final (ej. Microsoft 365, Gmail) se denomina:</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q6" value="A"> A) SaaS</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q6" value="B"> B) PaaS</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q6" value="C"> C) IaaS</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q6" value="D"> D) Edge Computing</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q6', 'A', '¡Exacto! SaaS es Software como Servicio, consumo directo llave en mano.', 'Flashcard 13.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q6')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q6">¿Qué siglas significan Software as a Service? Solo entras con tu cuenta y lo usas desde el navegador web.</div>
+                <div class="feedback-box" id="feed-q6"></div>
+            </div>
+
+            <div class="activity-card" id="card-q7">
+                <h3><span class="q-number">7</span>¿Cómo se define conceptualmente un 'contenedor' informático en entornos en la nube?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q7" value="A"> A) Un archivador físico metálico para guardar copias impresas de seguridad.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q7" value="B"> B) Una unidad lógica de software que compacta el código de una app y todas sus bibliotecas/configuraciones necesarias para ejecutarse de manera aislada.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q7" value="C"> C) Una base de datos estructurada con clave primaria obligatoria.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q7" value="D"> D) Una técnica de compresión de ficheros ZIP exclusivamente de lectura.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q7', 'B', '¡Excelente! Funciona como una \"caja mágica\" autónoma e independiente del sistema anfitrión.', 'Flashcard 14.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q7')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q7">Es una analogía con los contenedores marítimos: no importa qué barco los lleve, el contenido está hermético y estandarizado.</div>
+                <div class="feedback-box" id="feed-q7"></div>
+            </div>
+
+            <div class="activity-card" id="card-q8">
+                <h3><span class="q-number">8</span>¿Cuál es el propósito o función principal del software de código abierto Kubernetes?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q8" value="A"> A) Compilar código fuente escrito en lenguaje C++.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q8" value="B"> B) La orquestación, gestión automatizada y escalado de aplicaciones basadas en contenedores a gran escala.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q8" value="C"> C) Monitorizar la temperatura de las CPUs físicas en las oficinas de administración.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q8" value="D"> D) Servir de cortafuegos local (Firewall) para ordenadores portátiles de uso doméstico.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q8', 'B', '¡Correcto! Kubernetes organiza miles de contenedores de forma automatizada y elástica.', 'Flashcard 15.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q8')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q8">Es un orquestador. Si un contenedor se cae, Kubernetes arranca otro gemelo automáticamente.</div>
+                <div class="feedback-box" id="feed-q8"></div>
+            </div>
+
+            <div class="activity-card" id="card-q9">
+                <h3><span class="q-number">9</span>¿Qué distingue fundamentalmente a una arquitectura de nube privada frente a una de carácter público?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q9" value="A"> A) Que la nube privada no requiere el protocolo TCP/IP para operar.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q9" value="B"> B) Que pertenece de forma exclusiva a una única organización, garantizando un control estricto y máxima seguridad interna.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q9" value="C"> C) Que es completamente gratuita para el público general.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q9" value="D"> D) Que carece de sistemas físicos de almacenamiento remoto.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q9', 'B', '¡Muy bien! Las corporaciones con altos requerimientos legales o de secretos industriales suelen optar por nubes privadas dedicadas.', 'Flashcard 16.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q9')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q9">La exclusividad de uso de los servidores define el concepto de "privado" en el modelo cloud computing.</div>
+                <div class="feedback-box" id="feed-q9"></div>
+            </div>
+
+            <div class="activity-card" id="card-q10">
+                <h3><span class="q-number">10</span>Un ecosistema tecnológico empresarial que integra recursos y flujos de nubes públicas y privadas se cataloga como nube:</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q10" value="A"> A) Distribuida pura</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q10" value="B"> B) Híbrida</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q10" value="C"> C) Periférica residual</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q10" value="D"> D) Monolítica local</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q10', 'B', '¡Correcto! Combina la escalabilidad masiva de lo público con el control blindado de lo privado.', 'Flashcard 17.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q10')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q10">Piensa en un coche que combina dos motores de distinta naturaleza.</div>
+                <div class="feedback-box" id="feed-q10"></div>
+            </div>
+
+            <div class="activity-card" id="card-q11">
+                <h3><span class="q-number">11</span>¿Qué cuello de botella operativo mitiga el Edge Computing en sistemas críticos IoT en tiempo real?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q11" value="A"> A) El gasto de papel de oficina en impresión.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q11" value="B"> B) La latencia de red, al procesar los datos muy cerca del lugar físico donde se generan.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q11" value="C"> C) La necesidad de encriptar el software cliente.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q11" value="D"> D) Elimina por completo la necesidad de usar antenas o satélites de telecomunicación.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q11', 'B', '¡Exacto! El retraso temporal del viaje de datos a servidores transatlánticos es inaceptable para coches autónomos; el Edge lo resuelve.', 'Flashcard 18.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q11')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q11">Edge significa borde. Si procesas en el borde de la red (cerca del sensor), ¿qué tiempo de respuesta mejoras?</div>
+                <div class="feedback-box" id="feed-q11"></div>
+            </div>
+
+            <div class="activity-card" id="card-q12">
+                <h3><span class="q-number">12</span>En una contratación bajo modelo IaaS, ¿quién asume el control directo sobre el sistema operativo y el software intermedio?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q12" value="A"> A) El proveedor externo de la nube (ej. Amazon o Microsoft).</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q12" value="B"> B) La propia empresa cliente que contrata el servicio.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q12" value="C"> C) El fabricante físico del procesador Intel o AMD.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q12" value="D"> D) El consorcio regulador de Internet.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q12', 'B', '¡Muy bien! Te dan la máquina vacía; tú te encargas de instalar parches, sistemas de archivos y software.', 'Flashcard 20.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q12')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q12">Al ser el nivel más básico, el proveedor solo te da el hierro virtual; el sistema operativo corre por tu cuenta.</div>
+                <div class="feedback-box" id="feed-q12"></div>
+            </div>
+
+            <div class="activity-card" id="card-q13">
+                <h3><span class="q-number">13</span>Según los datos estadísticos de auditoría de TI, ¿cuál es el origen principal de la pérdida de información corporativa?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q13" value="A"> A) Incendios e inundaciones catastróficas en centros informáticos.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q13" value="B"> B) El error humano (borrado involuntario, configuraciones erróneas o fallas de guardado).</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q13" value="C"> C) Fallos críticos espontáneos en los algoritmos de encriptación.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q13" value="D"> D) Desgaste térmico de las pantallas de monitorización.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q13', 'B', '¡Correcto! El error humano lidera las causas. De ahí la importancia de automatizar copias en el cloud.', 'Flashcard 3 y 23.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q13')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q13">Pensamos mucho en hackers, pero la pulsación accidental de la tecla "Suprimir" en una carpeta no respaldada ocurre a diario.</div>
+                <div class="feedback-box" id="feed-q13"></div>
+            </div>
+
+            <div class="activity-card" id="card-q14">
+                <h3><span class="q-number">14</span>¿Por qué los discos duros mecánicos HDD locales se evalúan como elementos vulnerables en sistemas tradicionales?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q14" value="A"> A) Debido a que su fabricación contamina más que la de los cables ópticos.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q14" value="B"> B) Porque incorporan elementos mecánicos rotatorios sumamente sensibles a vibraciones, golpes, caídas de líquido o picos de luz.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q14" value="C"> C) Porque solo permiten almacenar archivos de texto sin imágenes.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q14" value="D"> D) Porque requieren conexión constante a Internet para leer datos de almacenamiento interno.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q14', 'B', '¡Exacto! Cualquier fallo físico destruye los datos de la empresa local; la nube distribuye este riesgo.', 'Flashcard 24.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q14')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q14">Tienen un cabezal físico que lee platos magnéticos girando a miles de revoluciones por minuto. Una caída de tensión eléctrica los raya.</div>
+                <div class="feedback-box" id="feed-q14"></div>
+            </div>
+
+            <div class="activity-card" id="card-q15">
+                <h3><span class="q-number">15</span>En la célebre analogía didáctica de la pizza, ¿qué modelo se asocia con pedir una pizza a domicilio lista para consumir?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q15" value="A"> A) IaaS</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q15" value="B"> B) PaaS</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q15" value="C"> C) SaaS</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q15" value="D"> D) Infraestructura On-Premise local</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q15', 'C', '¡Correcto! En SaaS la empresa externa se encarga de cocinar la app, mantener la infraestructura y servírtela.', 'Flashcard 29.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q15')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q15">Tú no pones el horno, ni haces la masa, ni lavas los platos; solo disfrutas del producto final listo.</div>
+                <div class="feedback-box" id="feed-q15"></div>
+            </div>
+
+            <div class="activity-card" id="card-q16">
+                <h3><span class="q-number">16</span>¿Qué hito técnico habilita el concepto de 'virtualización' dentro del ecosistema IaaS?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q16" value="A"> A) Permite eliminar físicamente las placas base de los centros de datos.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q16" value="B"> B) Permite segmentar y abstraer un único hardware físico muy potente en múltiples servidores virtuales aislados e independientes.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q16" value="C"> C) Consiste en cambiar la interfaz del software a un entorno tridimensional de realidad virtual.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q16" value="D"> D) Sincroniza la potencia eléctrica contratada con la facturación bancaria.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q16', 'B', '¡Magnífico! La virtualización optimiza el uso de CPU y memoria física evitando infrautilizar servidores físicos de gran coste.', 'Flashcard 46.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q16')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q16">Un hipervisor (software) convence a varios sistemas operativos de que cada uno posee un ordenador entero para ellos solos, compartiendo el mismo chip real.</div>
+                <div class="feedback-box" id="feed-q16"></div>
+            </div>
+
+            <div class="activity-card" id="card-q17">
+                <h3><span class="q-number">17</span>¿Cómo se denomina el macroproyecto europeo que pretende estructurar una red de datos segura y soberana frente a monopolios de terceros países?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q17" value="A"> A) EuroCloud Initiative</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q17" value="B"> B) Gaia-X</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q17" value="C"> C) Project Jupiter Cloud</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q17" value="D"> D) Schengen Digital System</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q17', 'B', '¡Excelente! Gaia-X busca la independencia y el cumplimiento del RGPD estricto europeo en el alojamiento de datos públicos y privados.', 'Flashcard 51.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q17')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q17">Lleva la letra 'X' en su nombre y evoca a la diosa de la Tierra en la mitología clásica.</div>
+                <div class="feedback-box" id="feed-q17"></div>
+            </div>
+
+            <div class="activity-card" id="card-q18">
+                <h3><span class="q-number">18</span>¿Cuál es el principal hándicap de usar exclusivamente una nube centralizada hiperdistante?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q18" value="A"> A) Que imposibilita redactar documentos con procesadores de texto.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q18" value="B"> B) La latencia insalvable que añade la distancia física en conexiones que exigen respuestas instantáneas.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q18" value="C"> C) Que solo funciona con sistemas operativos Linux corporativos antiguos.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q18" value="D"> D) La imposibilidad radical de realizar teletrabajo.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q18', 'B', '¡Correcto! Los paquetes tardan milisegundos físicos críticos en cruzar el océano. Por eso surge el Edge computing.', 'Flashcard 52.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q18')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q18">La luz viaja rápido por la fibra óptica, pero para tomar decisiones en microsegundos, la distancia es enemiga de la inmediatez.</div>
+                <div class="feedback-box" id="feed-q18"></div>
+            </div>
+
+            <div class="activity-card" id="card-q19">
+                <h3><span class="q-number">19</span>¿Qué elemento encapsulado dentro de un contenedor garantiza que una aplicación corra idéntica en pruebas y en producción?</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q19" value="A"> A) La velocidad de la tarjeta de red física del router local.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q19" value="B"> B) El conjunto cerrado de bibliotecas de recursos, dependencias exactas y configuraciones empaquetadas junto al código.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q19" value="C"> C) El hardware gráfico dedicado del desarrollador.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q19" value="D"> D) La marca del sistema operativo base del servidor cloud de origen.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q19', 'B', '¡Exacto! Al incluir sus propias dependencias internas, se mitiga el clásico problema de \"en mi ordenador sí funcionaba\".', 'Flashcard 35 y 53.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q19')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q19">No depende del sistema operativo del servidor; lleva su propio \"equipaje de dependencias de software\" cerrado.</div>
+                <div class="feedback-box" id="feed-q19"></div>
+            </div>
+
+            <div class="activity-card" id="card-q20">
+                <h3><span class="q-number">20</span>El uso estratégico de infraestructuras de computación en la nube acorta drásticamente el tiempo de:</h3>
+                <ul class="options-list">
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q20" value="A"> A) Desinstalación o borrado definitivo de proyectos.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q20" value="B"> B) Lanzamiento comercial (Time-to-Market) de nuevas aplicaciones al proveer entornos preconfigurados estables.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q20" value="C"> C) Escritura manual de código fuente.</label></li>
+                    <li class="option-item"><label class="option-label"><input type="radio" name="q20" value="D"> D) Formateo físico de discos duros de oficina.</label></li>
+                </ul>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkRadio('q20', 'B', '¡Magnífico! Ya no hay que esperar semanas a comprar y configurar servidores reales; se crean en 2 minutos en la nube.', 'Flashcard 54.')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q20')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q20">Hace alusión al ciclo de vida del software comercial y su puesta a disposición en el mercado de consumo.</div>
+                <div class="feedback-box" id="feed-q20"></div>
+            </div>
+        </div>
+
+        <div id="tab-tf" class="tab-content">
+            <div class="info-card">Determina si los siguientes enunciados son verdaderos o falsos. Al pulsar, descubrirás la justificación pedagógica oficial.</div>
+            
+            <div class="activity-card" id="card-q21">
+                <h3><span class="q-number">21</span>En el modelo tradicional de alojamiento local (On-Premise), el software de administración e inventario debe instalarse obligatoriamente en servidores remotos compartidos en internet.</h3>
+                <div class="tf-container">
+                    <button class="tf-btn true-btn" onclick="checkTF('q21', true, false, 'Incorrecto. Revisa el modelo local.', '¡Correcto! En el modelo tradicional, el software se instala y ejecuta localmente en la máquina del cliente u oficina (Flashcard 2).')">Verdadero</button>
+                    <button class="tf-btn false-btn" onclick="checkTF('q21', false, true, '¡Correcto! En el modelo tradicional, el software se instala y ejecuta localmente en la máquina del cliente u oficina (Flashcard 2).', '')">Falso</button>
+                </div>
+                <div class="feedback-box" id="feed-q21"></div>
+            </div>
+
+            <div class="activity-card" id="card-q22">
+                <h3><span class="q-number">22</span>En la computación en la nube, los servidores remotos operan exclusivamente respondiendo de forma pasiva a solicitudes de archivos estáticos archivados, careciendo de potencial de ejecución computacional autónoma.</h3>
+                <div class="tf-container">
+                    <button class="tf-btn true-btn" onclick="checkTF('q22', true, false, 'Falso.', '¡Correcto! Es falso. Además de almacenar, ejecutan código complejo y procesan flujos de información activa del usuario de manera remota (Flashcard 4).')">Verdadero</button>
+                    <button class="tf-btn false-btn" onclick="checkTF('q22', false, true, '¡Correcto! Es falso. Además de almacenar, ejecutan código complejo y procesan flujos de información activa del usuario de manera remota (Flashcard 4).', '')">Falso</button>
+                </div>
+                <div class="feedback-box" id="feed-q22"></div>
+            </div>
+
+            <div class="activity-card" id="card-q23">
+                <h3><span class="q-number">23</span>El principio de 'Pago por uso' de los modelos Cloud significa que las empresas deben afrontar cuotas fijas mensuales severas e invariables por contrato, con independencia del volumen de recursos lógicos reales consumidos.</h3>
+                <div class="tf-container">
+                    <button class="tf-btn true-btn" onclick="checkTF('q23', true, false, 'Incorrecto.', '¡Excelente! Es falso. El pago por uso evita los costes fijos de hardware infrautilizado; solo abonas los gigabytes o ciclos de CPU consumidos puntualmente (Flashcard 22).')">Verdadero</button>
+                    <button class="tf-btn false-btn" onclick="checkTF('q23', false, true, '¡Excelente! Es falso. El pago por uso evita los costes fijos de hardware infrautilizado; solo abonas los gigabytes o ciclos de CPU consumidos puntualmente (Flashcard 22).', '')">Falso</button>
+                </div>
+                <div class="feedback-box" id="feed-q23"></div>
+            </div>
+
+            <div class="activity-card" id="card-q24">
+                <h3><span class="q-number">24</span>Una 'Nube Pública' hace referencia a entornos virtuales provistos por proveedores ajenos externos cuyos recursos lógicos y de red son accesibles bajo demanda de forma compartida por múltiples empresas clientes.</h3>
+                <div class="tf-container">
+                    <button class="tf-btn true-btn" onclick="checkTF('q24', true, true, '¡Muy bien! Es verdadero. Es un modelo multitenant donde el hardware físico se comparte de forma segura y estanca entre diversos suscriptores (Flashcard 25).', '')">Verdadero</button>
+                    <button class="tf-btn false-btn" onclick="checkTF('q24', false, false, 'Incorrecto.', '¡Muy bien! Es verdadero. Es un modelo multitenant donde el hardware físico se comparte de forma segura y estanca entre diversos suscriptores (Flashcard 25).')">Falso</button>
+                </div>
+                <div class="feedback-box" id="feed-q24"></div>
+            </div>
+
+            <div class="activity-card" id="card-q25">
+                <h3><span class="q-number">25</span>El Cloud computing actúa como un catalizador del teletrabajo porque centraliza de forma segura la accesibilidad a las herramientas críticas y bases de datos desde cualquier localización geográfica del empleado con conexión a Internet.</h3>
+                <div class="tf-container">
+                    <button class="tf-btn true-btn" onclick="checkTF('q25', true, true, '¡Exacto! Verdadero. Permite la deslocalización del puesto laboral de oficina físico, flexibilizando la operativa interna (Flashcard 26).', '')">Verdadero</button>
+                    <button class="tf-btn false-btn" onclick="checkTF('q25', false, false, 'Incorrecto.', '¡Exacto! Verdadero. Permite la deslocalización del puesto laboral de oficina físico, flexibilizando la operativa interna (Flashcard 26).')">Falso</button>
+                </div>
+                <div class="feedback-box" id="feed-q25"></div>
+            </div>
+
+            <div class="activity-card" id="card-q26">
+                <h3><span class="q-number">26</span>La migración total hacia un modelo integral en la nube suprime la necesidad corporativa física de habilitar y costear una sala local climatizada de servidores dotada de alta potencia eléctrica y mantenimiento presencial continuo.</h3>
+                <div class="tf-container">
+                    <button class="tf-btn true-btn" onclick="checkTF('q26', true, true, '¡Correcto! Verdadero. Es un ahorro masivo directo de costes operativos (OpEx) energéticos y de espacio inmobiliario (Flashcard 42).', '')">Verdadero</button>
+                    <button class="tf-btn false-btn" onclick="checkTF('q26', false, false, 'Incorrecto.', '¡Correcto! Verdadero. Es un ahorro masivo directo de costes operativos (OpEx) energéticos y de espacio inmobiliario (Flashcard 42).')">Falso</button>
+                </div>
+                <div class="feedback-box" id="feed-q26"></div>
+            </div>
+
+            <div class="activity-card" id="card-q27">
+                <h3><span class="q-number">27</span>Por lo general, las grandes firmas de cloud computing dedican exiguos presupuestos a ciberseguridad, lo que genera que una pequeña gestoría local tenga sus archivos contables mucho más seguros en un ordenador tradicional de oficina.</h3>
+                <div class="tf-container">
+                    <button class="tf-btn true-btn" onclick="checkTF('q27', true, false, 'Falso.', '¡Correcto! Falso. Los proveedores cloud destinan fortunas y equipos de ingenieros militares dedicados en exclusiva a blindar el perímetro, cifrar datos y evitar ataques (Flashcard 43 y 211).')">Verdadero</button>
+                    <button class="tf-btn false-btn" onclick="checkTF('q27', false, true, '¡Correcto! Falso. Los proveedores cloud destinan fortunas y equipos de ingenieros militares dedicados en exclusiva a blindar el perímetro, cifrar datos y evitar ataques (Flashcard 43 y 211).', '')">Falso</button>
+                </div>
+                <div class="feedback-box" id="feed-q27"></div>
+            </div>
+
+            <div class="activity-card" id="card-q28">
+                <h3><span class="q-number">28</span>En el modelo Software como Servicio (SaaS), la lógica del programa se parchea y actualiza directamente en el servidor central del proveedor, desplegándose los cambios de manera transparente y compatible para el usuario final.</h3>
+                <div class="tf-container">
+                    <button class="tf-btn true-btn" onclick="checkTF('q28', true, true, '¡Magnífico! Verdadero. Libera a los informáticos internos de la empresa de testear y ejecutar despliegues máquina por máquina (Flashcard 41).', '')">Verdadero</button>
+                    <button class="tf-btn false-btn" onclick="checkTF('q28', false, false, 'Incorrecto.', '¡Magnífico! Verdadero. Libera a los informáticos internos de la empresa de testear y ejecutar despliegues máquina por máquina (Flashcard 41).')">Falso</button>
+                </div>
+                <div class="feedback-box" id="feed-q28"></div>
+            </div>
+
+            <div class="activity-card" id="card-q29">
+                <h3><span class="q-number">29</span>Las arquitecturas de nube híbrida constriñen forzosamente a las pymes a alojar la totalidad de sus secretos comerciales y patentes confidenciales dentro del perímetro público común y abierto.</h3>
+                <div class="tf-container">
+                    <button class="tf-btn true-btn" onclick="checkTF('q29', true, false, 'Incorrecto.', '¡Correcto! Es totalmente falso. Su virtud principal radica en la flexibilidad: permite guardar datos altamente sensibles en servidores privados locales y delegar lo ordinario en la nube pública (Flashcard 48).')">Verdadero</button>
+                    <button class="tf-btn false-btn" onclick="checkTF('q29', false, true, '¡Correcto! Es totalmente falso. Su virtud principal radica en la flexibilidad: permite guardar datos altamente sensibles en servidores privados locales y delegar lo ordinario en la nube pública (Flashcard 48).', '')">Falso</button>
+                </div>
+                <div class="feedback-box" id="feed-q29"></div>
+            </div>
+
+            <div class="activity-card" id="card-q30">
+                <h3><span class="q-number">30</span>La irrupción de dispositivos del Internet de las Cosas (IoT) corporativos o electrodomésticos inteligentes permanentemente expuestos a la red abre vectores de riesgo y ciberataques que amenazan la integridad de datos si carecen de protección perimetral.</h3>
+                <div class="tf-container">
+                    <button class="tf-btn true-btn" onclick="checkTF('q30', true, true, '¡Exacto! Verdadero. Dispositivos mal asegurados o con contraseñas de fábrica se usan frecuentemente por ciberdelincuentes como puertas traseras de intrusión (Flashcard 55).', '')">Verdadero</button>
+                    <button class="tf-btn false-btn" onclick="checkTF('q30', false, false, 'Incorrecto.', '¡Exacto! Verdadero. Dispositivos mal asegurados o con contraseñas de fábrica se usan frecuentemente por ciberdelincuentes como puertas traseras de intrusión (Flashcard 55).')">Falso</button>
+                </div>
+                <div class="feedback-box" id="feed-q30"></div>
+            </div>
+        </div>
+
+        <div id="tab-blanks" class="tab-content">
+            <div class="info-card">Escribe con precisión en minúsculas el término técnico que completa la oración didáctica. ¡Atento a la ortografía! </div>
+
+            <div class="activity-card" id="card-q31">
+                <h3><span class="q-number">31</span>Los sistemas basados en la nube se definen como aquellos esquemas informáticos que dependen de infraestructuras 
+                <input type="text" class="blank-input" id="blank-q31" data-answer="remotas"> en detrimento de soluciones físicas locales instaladas en la propia oficina.</h3>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkBlank('q31')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q31')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q31">Empieza por 'r' y define algo ubicado a distancia en la red (Flashcard 47).</div>
+                <div class="feedback-box" id="feed-q31"></div>
+            </div>
+
+            <div class="activity-card" id="card-q32">
+                <h3><span class="q-number">32</span>El parámetro crítico de redes denominado 
+                <input type="text" class="blank-input" id="blank-q32" data-answer="latencia"> mide el desfase o intervalo temporal de retardo que transcurre desde que un sensor lanza una solicitud hasta que obtiene la respuesta del servidor central.</h3>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkBlank('q32')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q32')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q32">Término técnico clave. Empieza por 'l' y afecta mucho al juego online y automoción (Flashcard 6).</div>
+                <div class="feedback-box" id="feed-q32"></div>
+            </div>
+
+            <div class="activity-card" id="card-q33">
+                <h3><span class="q-number">33</span>A fin de eludir retrasos en aplicaciones quirúrgicas o automatizadas críticas, la computación 
+                <input type="text" class="blank-input" id="blank-q33" data-answer="edge"> traslada parte del procesamiento al borde periférico, reduciendo el viaje físico de tramos de información.</h3>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkBlank('q33')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q33')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q33">Término en inglés. Significa borde u orilla del ecosistema (Flashcard 7).</div>
+                <div class="feedback-box" id="feed-q33"></div>
+            </div>
+
+            <div class="activity-card" id="card-q34">
+                <h3><span class="q-number">34</span>Intercalada de forma jerárquica entre el extremo periférico y los servidores de almacenamiento masivos de Internet, la computación en la niebla o 
+                <input type="text" class="blank-input" id="blank-q34" data-answer="fog"> computing dota al sistema de nodos intermedios de filtrado y procesamiento zonal.</h3>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkBlank('q34')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q34')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q34">Traducción de niebla en inglés, de solo 3 letras (Flashcard 8).</div>
+                <div class="feedback-box" id="feed-q34"></div>
+            </div>
+
+            <div class="activity-card" id="card-q35">
+                <h3><span class="q-number">35</span>El nivel de granularidad computacional extrema que corre procesos y algoritmos directamente dentro del propio elemento sensor o actuador (ej. una cámara inteligente autónoma) se tipifica como 
+                <input type="text" class="blank-input" id="blank-q35" data-answer="mist"> computing.</h3>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkBlank('q35')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q35')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q35">Significa \"neblina\" o \"lluvia muy fina\" en inglés (Flashcard 9 y 33).</div>
+                <div class="feedback-box" id="feed-q35"></div>
+            </div>
+
+            <div class="activity-card" id="card-q36">
+                <h3><span class="q-number">36</span>En la analogía culinaria, elaborar minuciosamente una receta utilizando ingredientes propios y herramientas de cocina en nuestro domicilio mapea con el modelo clásico de 
+                <input type="text" class="blank-input" id="blank-q36" data-answer="infraestructura"> local.</h3>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkBlank('q36')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q36')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q36">Sustantivo largo que empieza por 'i'. Soporte básico físico (Flashcard 28).</div>
+                <div class="feedback-box" id="feed-q36"></div>
+            </div>
+
+            <div class="activity-card" id="card-q37">
+                <h3><span class="q-number">37</span>La meta capital de aproximar arquitecturas lógicas al origen es descentralizar para evitar a toda costa la temida 
+                <input type="text" class="blank-input" id="blank-q37" data-answer="sobrecarga"> de peticiones concurrentes en los CPDs centrales de Internet.</h3>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkBlank('q37')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q37')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q37">Sustantivo femenino que empieza por 's'. Cuando miles de terminales saturan un nodo al mismo tiempo (Flashcard 27 y 45).</div>
+                <div class="feedback-box" id="feed-q37"></div>
+            </div>
+
+            <div class="activity-card" id="card-q38">
+                <h3><span class="q-number">38</span>La computación cloud dota a las organizaciones de una vía elástica y moderna para obviar la supeditación laboral hacia un servidor centralizado local o un 
+                <input type="text" class="blank-input" id="blank-q38" data-answer="ordenador"> personal estanco.</h3>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkBlank('q38')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q38')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q38">Sinónimo de computadora o estación de trabajo de escritorio (Flashcard 44).</div>
+                <div class="feedback-box" id="feed-q38"></div>
+            </div>
+
+            <div class="activity-card" id="card-q39">
+                <h3><span class="q-number">39</span>Un déficit crítico en el 
+                <input type="text" class="blank-input" id="blank-q39" data-answer="ancho de banda"> de la red informática corporativa entorpece de forma severa el flujo continuado de carga y descarga hacia el cloud central.</h3>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkBlank('q39')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q39')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q39">Expresión de tres palabras separadas por espacios. Mide la tasa de transferencia de datos de una línea de comunicación (Flashcard 31).</div>
+                <div class="feedback-box" id="feed-q39"></div>
+            </div>
+
+            <div class="activity-card" id="card-q40">
+                <h3><span class="q-number">40</span>La nube aporta recursos computacionales virtualmente ilimitados idóneos para agilizar de modo automático complejas auditorías y analítica masiva en entornos de 
+                <input type="text" class="blank-input" id="blank-q40" data-answer="big data">.</h3>
+                <div class="actions-block">
+                    <button class="btn btn-check" onclick="checkBlank('q40')">Comprobar</button>
+                    <button class="btn btn-hint" onclick="toggleHint('hint-q40')">Pista</button>
+                </div>
+                <div class="hint-box" id="hint-q40">Concepto anglosajón mundialmente conocido. Alusión a la minería e inteligencia de macro-volúmenes masivos de datos (Flashcard 19).</div>
+                <div class="feedback-box" id="feed-q40"></div>
+            </div>
+        </div>
+
+        <div id="tab-match" class="tab-content">
+            <div class="info-card">Haz clic primero en un concepto de la columna izquierda y luego pulsa sobre su definición correspondiente en la columna derecha. ¡Completa las uniones lógicas sin fallos! </div>
+
+            <div class="activity-card" id="match-block-1">
+                <h3 style="color: var(--primary);">Bloque de Emparejamiento A: Modelos de Servicio</h3>
+                <div class="match-grid" id="grid-match1">
+                    <div class="match-col">
+                        <div class="match-item" data-id="m1" data-type="concept">IaaS</div>
+                        <div class="match-item" data-id="m2" data-type="concept">PaaS</div>
+                        <div class="match-item" data-id="m3" data-type="concept">SaaS</div>
+                        <div class="match-item" data-id="m4" data-type="concept">Contenedor</div>
+                        <div class="match-item" data-id="m5" data-type="concept">Virtualización</div>
+                    </div>
+                    <div class="match-col">
+                        <div class="match-item" data-id="m4" data-type="definition">Unidad hermética lógica que aísla código y dependencias exactas del entorno de ejecución.</div>
+                        <div class="match-item" data-id="m1" data-type="definition">Alquiler puro de cimientos informáticos básicos: cómputo, almacenamiento y redes vacías.</div>
+                        <div class="match-item" data-id="m5" data-type="definition">Técnica de abstracción para segmentar una misma CPU real en varias máquinas lógicas concurrentes.</div>
+                        <div class="match-item" data-id="m3" data-type="definition">Software llave en mano listo para su explotación directa desde un navegador por el cliente final.</div>
+                        <div class="match-item" data-id="m2" data-type="definition">Suministro de ecosistemas ideales de despliegue para programadores sin gestión de parches operativos.</div>
+                    </div>
+                </div>
+                <div class="feedback-box" id="feed-match1"></div>
+            </div>
+
+            <div class="activity-card" id="match-block-2">
+                <h3 style="color: var(--primary);">Bloque de Emparejamiento B: Arquitecturas y Modelos de Despliegue</h3>
+                <div class="match-grid" id="grid-match2">
+                    <div class="match-col">
+                        <div class="match-item" data-id="m6" data-type="concept">Nube Pública</div>
+                        <div class="match-item" data-id="m7" data-type="concept">Nube Privada</div>
+                        <div class="match-item" data-id="m8" data-type="concept">Nube Híbrida</div>
+                        <div class="match-item" data-id="m9" data-type="concept">Latencia Centralizada</div>
+                        <div class="match-item" data-id="m10" data-type="concept">Gaia-X</div>
+                    </div>
+                    <div class="match-col">
+                        <div class="match-item" data-id="m8" data-type="definition">Modelo combinatorio flexible que orquesta cargas cotidianas en lo público y críticas en lo privado.</div>
+                        <div class="match-item" data-id="m6" data-type="definition">Entorno multi-inquilino seguro explotado por un tercero externo accesible bajo demanda.</div>
+                        <div class="match-item" data-id="m10" data-type="definition">Iniciativa geopolítica e institucional de Europa para cimentar soberanía de datos digitales comunes.</div>
+                        <div class="match-item" data-id="m7" data-type="definition">Estructura exclusiva dedicada en propiedad a un solo cliente para control estricto de secretos.</div>
+                        <div class="match-item" data-id="m9" data-type="definition">Retraso de respuesta provocado por la lejanía geográfica de los mega-servidores remotos.</div>
+                    </div>
+                </div>
+                <div class="feedback-box" id="feed-match2"></div>
+            </div>
+        </div>
+
+        <div id="tab-flash" class="tab-content">
+            <div class="info-card">¿Quieres asentar la teoría antes del examen? Haz clic sobre la tarjeta interactiva para voltearla y ver la respuesta. Utiliza los controles inferiores para avanzar por el compendio de las 55 flashcards oficiales de la asignatura.</div>
+            <div class="flashcard-container">
+                <div class="flashcard" id="fcard" onclick="this.classList.toggle('flipped')">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <h4 id="flash-idx">Tarjeta 1 / 55</h4>
+                            <p id="flash-q" style="font-size: 1.2rem; font-weight: 600;"></p>
+                            <span style="margin-top: 20px; font-size: 0.8rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px;">🔄 Haz clic para voltear</span>
+                        </div>
+                        <div class="flashcard-back">
+                            <h4>Respuesta Pedagógica</h4>
+                            <p id="flash-a" style="font-size: 1.1rem; font-weight: 500;"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flash-controls">
+                    <button class="btn btn-hint" onclick="prevCard()">&larr; Anterior</button>
+                    <span id="flash-counter" style="font-weight: bold; min-width: 80px; text-align: center;">1 / 55</span>
+                    <button class="btn btn-check" onclick="nextCard()">Siguiente &rarr;</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Objeto de seguimiento de respuestas (50 items evaluables)
+        const totalEvaluables = 50;
+        let answeredQuestions = new Set();
+        let correctAnswersCount = 0;
+
+        // Datos internos Flashcards (55 totales provenientes de la fuente)
+        const flashcardsData = [
+            {q: "¿Qué es la computación en la nube?", a: "Es un sistema que utiliza recursos y servicios de computación disponibles a través de Internet."},
+            {q: "En el modelo tradicional de alojamiento, ¿dónde se deben instalar los programas para poder utilizarlos?", a: "En dispositivos locales con gran capacidad de almacenamiento."},
+            {q: "¿Cuál es la causa más común de la pérdida de datos en los sistemas informáticos?", a: "El error humano, ya sea por borrado accidental o falta de precaución al guardar."},
+            {q: "Además de responder a solicitudes, ¿qué función adicional realizan los servidores en la computación en la nube?", a: "Ejecutan programas y procesan datos del cliente de forma remota."},
+            {q: "¿Qué ventaja ofrece la nube respecto a la accesibilidad de los archivos?", a: "Permite acceder a los archivos desde cualquier dispositivo con conexión a Internet."},
+            {q: "¿Cómo se define la 'latencia' en un sistema informático?", a: "Es el tiempo que tarda un sistema en responder a una solicitud después de recibirla."},
+            {q: "El modelo de computación que lleva el procesamiento de datos cerca de la fuente de origen se denomina _____ computing.", a: "Edge"},
+            {q: "¿Qué función cumple el Fog computing en la arquitectura de red?", a: "Actúa como una capa intermedia de procesamiento entre el Edge computing y la nube."},
+            {q: "El nivel de computación que realiza el procesamiento directamente en el mismo dispositivo sensor se llama _____ computing.", a: "Mist"},
+            {q: "¿Qué significa que la infraestructura de la nube sea 'escalable bajo demanda'?", a: "Que las empresas pueden contratar y pagar solo por los recursos que necesitan en cada momento."},
+            {q: "¿En qué consiste la Infraestructura como Servicio (IaaS)?", a: "En el alquiler de componentes básicos como procesamiento, almacenamiento, redes y virtualización."},
+            {q: "Ejemplos: Google App Engine o Salesforce. ¿A qué modelo de servicio de nube pertenecen?", a: "Plataforma como Servicio (PaaS)."},
+            {q: "El modelo de nube que proporciona aplicaciones listas para el usuario final, como Microsoft 365, se llama _____.", a: "SaaS (Software como Servicio)"},
+            {q: "¿Qué es un 'contenedor' en el ámbito de la nube?", a: "Una unidad de software que incluye el código y todo lo necesario para ejecutar una aplicación de forma aislada."},
+            {q: "¿Cuál es la función principal de Kubernetes?", a: "La gestión y el escalado de aplicaciones basadas en contenedores a gran escala."},
+            {q: "¿Qué diferencia a una nube privada de una pública?", a: "La nube privada pertenece y es gestionada por una sola organización para mayor control y seguridad."},
+            {q: "Un sistema que combina recursos de nubes públicas y privadas se denomina nube _____.", a: "híbrida"},
+            {q: "¿Qué problema resuelve el uso de Edge computing en aplicaciones críticas de tiempo real?", a: "Reduce la latencia de respuesta al procesar los datos cerca de donde se generan."},
+            {q: "¿Por qué el cloud computing facilita el análisis de Big Data?", a: "Porque ofrece recursos casi ilimitados para procesar grandes volúmenes de datos rápidamente."},
+            {q: "En el modelo IaaS, ¿quién tiene mayor control sobre la configuración del sistema operativo y los recursos?", a: "La empresa cliente."},
+            {q: "¿Cuál es la principal ventaja medioambiental de migrar a la nube según el caso de la gestoría?", a: "La eliminación del uso de papel mediante la gestión documental digital."},
+            {q: "Term: Pago por uso", a: "Definición: Modelo económico donde solo se paga por los recursos computacionales consumidos, evitando gastos fijos en hardware infrautilizado."},
+            {q: "Menciona tres causas comunes de pérdida de datos.", a: "Error humano, averías mecánicas y ataques de virus."},
+            {q: "¿Por qué los discos duros se consideran piezas sensibles en un sistema tradicional?", a: "Porque son propensos a averías mecánicas por golpes, líquidos o cortes de luz."},
+            {q: "Concepto: Nube pública", a: "Definición: Servicios de nube proporcionados por terceros externos accesibles bajo demanda por múltiples clientes."},
+            {q: "¿Qué ventaja competitiva ofrece la nube para el teletrabajo?", a: "Permite que los empleados accedan a la información y herramientas desde cualquier ubicación geográfica."},
+            {q: "La tecnología que descentraliza el procesamiento para evitar la sobrecarga de los servidores centrales es el _____ computing.", a: "Edge (o también Fog y Mist)"},
+            {q: "En la analogía de la pizza, ¿qué modelo representa preparar la pizza en casa con tus propios ingredientes y horno?", a: "Infraestructura local (modelo tradicional)."},
+            {q: "En la analogía de la pizza, ¿qué modelo representa pedir una pizza a domicilio donde la pizzería se encarga de todo?", a: "SaaS (Software como Servicio)."},
+            {q: "¿Qué beneficio aporta el cloud computing en caso de fallos físicos en la oficina?", a: "Permite la recuperación de datos mediante copias de seguridad alojadas remotamente."},
+            {q: "¿Cómo influye el ancho de banda en la eficiencia de la nube centralizada?", a: "Un ancho de banda insuficiente puede ralentizar la transferencia continua de grandes volúmenes de datos."},
+            {q: "¿Cuál es la función de los 'nodos intermedios' en el Fog computing?", a: "Procesar datos en servidores cercanos a la empresa antes de enviarlos a la nube central."},
+            {q: "Ejemplo: Un semáforo con cámara que cuenta peatones sin enviar datos a un servidor externo. ¿Qué tipo de computación usa?", a: "Mist computing."},
+            {q: "Ejemplo: Un semáforo que envía imágenes a una estación de procesamiento local cercana. ¿Qué tipo de computación usa?", a: "Fog computing."},
+            {q: "¿Qué ventaja tiene el uso de contenedores para los desarrolladores?", a: "Garantizan que la aplicación funcione igual en cualquier entorno (desarrollo, prueba o producción)."},
+            {q: "En el modelo PaaS, ¿de qué carga técnica se libera a la empresa?", a: "De la gestión y mantenimiento de la infraestructura subyacente (servidores, redes)."},
+            {q: "¿Qué permite el escalado de infraestructuras ante picos de demanda?", a: "Aumentar la potencia de procesamiento de forma inmediata contratando más servidores virtuales."},
+            {q: "Menciona dos ejemplos reales de servicios IaaS.", a: "Amazon EC2 y Azure Virtual Machines."},
+            {q: "Menciona dos ejemplos reales de servicios SaaS.", a: "Google Workspace y Microsoft 365."},
+            {q: "¿Qué riesgo legal corren las empresas si pierden datos sensibles?", a: "Pueden recibir multas además de las consecuencias operativas negativas."},
+            {q: "En el modelo de nube, el software se actualiza en el _____ y los cambios son compatibles con los dispositivos del cliente.", a: "servidor"},
+            {q: "¿Qué necesidad física desaparece para una empresa que migra totalmente a la nube?", a: "La necesidad de una sala de servidores refrigerada y con gran potencia eléctrica."},
+            {q: "¿Qué papel juega la seguridad en los proveedores de cloud computing?", a: "Invierten grandes sumas en medidas de protección y privacidad para blindar los datos de sus clientes."},
+            {q: "La computación en la nube es una alternativa a trabajar en un servidor local o en un _____ personal.", a: "ordenador"},
+            {q: "¿Por qué el Edge computing ayuda a reducir la sobrecarga de los servidores centrales?", a: "Porque filtra y procesa parte de la información localmente, enviando solo lo necesario a la nube."},
+            {q: "¿Qué permite la 'virtualización' en el contexto de IaaS?", a: "Crear múltiples 'ordenadores virtuales' dentro de un mismo hardware físico potente."},
+            {q: "Los sistemas basados en la nube son aquellos que dependen de infraestructuras remotas en lugar de infraestructuras _____.", a: "físicas (o locales)"},
+            {q: "¿Qué ventaja tiene una nube híbrida para una empresa con datos muy confidenciales?", a: "Permite mantener los datos críticos en la nube privada y usar la pública para tareas menos sensibles."},
+            {q: "¿Cómo se describe el modelo de respuesta en el alojamiento tradicional?", a: "Los servidores simplemente responden a solicitudes presentando datos archivados."},
+            {q: "¿Qué permite hacer Google Docs que no permite un procesador de texto local tradicional?", a: "La colaboración en tiempo real de varios usuarios sobre el mismo documento en la nube."},
+            {q: "La iniciativa europea que busca crear una infraestructura de datos segura se llama _____.", a: "Gaia-X"},
+            {q: "¿Cuál es la principal desventaja de la nube centralizada si se requiere respuesta instantánea?", a: "La latencia provocada por la distancia física entre el dispositivo y el servidor remoto."},
+            {q: "¿Qué elemento del contenedor asegura que la aplicación tenga todos sus recursos?", a: "Las bibliotecas de recursos y configuraciones incluidas en el paquete."},
+            {q: "El cloud computing reduce el tiempo de _____ de nuevas aplicaciones al ofrecer plataformas de prueba listas.", a: "lanzamiento (o mercado)"},
+            {q: "¿Qué causa de pérdida de datos está vinculada a dispositivos IoT como neveras inteligentes?", a: "Ciberataques o virus, debido a su constante exposición a la red."}
+        ];
+
+        let currentFlashIdx = 0;
+
+        // Inicialización
+        window.onload = function() {
+            renderFlashcard();
+            setupMatching('grid-match1', 'feed-match1', [41,42,43,44,45]);
+            setupMatching('grid-match2', 'feed-match2', [46,47,48,49,50]);
+        };
+
+        // Pestañas dinámicas
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            // Buscar botón activo por evento
+            const event = window.event;
+            if(event && event.target) {
+                event.target.classList.add('active');
+            }
+        }
+
+        function toggleHint(hintId) {
+            const h = document.getElementById(hintId);
+            h.style.display = (h.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // Actualizar tracker global
+        function updateProgress(idQuestion, isCorrect) {
+            const sizeBefore = answeredQuestions.size;
+            answeredQuestions.add(idQuestion);
+            
+            if (isCorrect && answeredQuestions.size > sizeBefore) {
+                correctAnswersCount++;
+            }
+            
+            const pct = Math.round((answeredQuestions.size / totalEvaluables) * 100);
+            document.getElementById('global-progress').style.width = pct + '%';
+            document.getElementById('progress-txt').innerText = answeredQuestions.size + '/' + totalEvaluables;
+            
+            const successRate = Math.round((correctAnswersCount / answeredQuestions.size) * 100) || 0;
+            document.getElementById('score-txt').innerText = successRate + '%';
+        }
+
+        // Validación de Opción Múltiple
+        function checkRadio(qId, correctVal, successText, failText) {
+            const options = document.getElementsByName(qId);
+            let selectedVal = null;
+            for(let opt of options) {
+                if(opt.checked) selectedVal = opt.value;
+            }
+
+            const feed = document.getElementById('feed-' + qId);
+            feed.style.display = 'block';
+
+            if(!selectedVal) {
+                feed.className = "feedback-box incorrect";
+                feed.innerText = "Por favor, selecciona una opción antes de comprobar.";
+                return;
+            }
+
+            if(selectedVal === correctVal) {
+                feed.className = "feedback-box correct";
+                feed.innerText = successText;
+                updateProgress(qId, true);
+            } else {
+                feed.className = "feedback-box incorrect";
+                feed.innerText = failText + " Vuelve a intentarlo.";
+                updateProgress(qId, false);
+            }
+        }
+
+        // Validación Verdadero o Falso
+        function checkTF(qId, selectedVal, correctVal, successText, failText) {
+            const card = document.getElementById('card-' + qId);
+            const btns = card.querySelectorAll('.tf-btn');
+            
+            // Estilos visuales de selección
+            if(selectedVal === true) {
+                btns[0].classList.add('selected');
+                btns[1].classList.remove('selected');
+            } else {
+                btns[1].classList.add('selected');
+                btns[0].classList.remove('selected');
+            }
+
+            const feed = document.getElementById('feed-' + qId);
+            feed.style.display = 'block';
+
+            if(selectedVal === correctVal) {
+                feed.className = "feedback-box correct";
+                feed.innerText = successText || "¡Exacto! Explicación asimilada perfectamente.";
+                updateProgress(qId, true);
+            } else {
+                feed.className = "feedback-box incorrect";
+                feed.innerText = failText || "Respuesta incorrecta. Analiza la justificación adjunta.";
+                updateProgress(qId, false);
+            }
+        }
+
+        // Validación de Rellenar Huecos
+        function checkBlank(qId) {
+            const input = document.getElementById('blank-' + qId);
+            const userText = input.value.trim().toLowerCase();
+            const correctText = input.getAttribute('data-answer').toLowerCase();
+
+            const feed = document.getElementById('feed-' + qId);
+            feed.style.display = 'block';
+
+            if(userText === correctText) {
+                feed.className = "feedback-box correct";
+                feed.innerText = "¡Excelente precisión término-lingüística! Completado con éxito.";
+                updateProgress(qId, true);
+            } else {
+                feed.className = "feedback-box incorrect";
+                feed.innerText = `No coincide. Recuerda no incluir mayúsculas ni espacios innecesarios. ¡Prueba otra vez!`;
+                updateProgress(qId, false);
+            }
+        }
+
+        // Lógica Interactiva de Emparejamiento
+        function setupMatching(gridId, feedId, questionsRange) {
+            const grid = document.getElementById(gridId);
+            let selectedConcept = null;
+            let selectedDefinition = null;
+            let localPairsFound = 0;
+
+            const items = grid.querySelectorAll('.match-item');
+            items.forEach(item => {
+                item.addEventListener('click', function() {
+                    if(this.classList.contains('paired')) return;
+
+                    const type = this.getAttribute('data-type');
+                    
+                    if(type === 'concept') {
+                        grid.querySelectorAll('[data-type="concept"]').forEach(i => i.classList.remove('selected'));
+                        this.classList.add('selected');
+                        selectedConcept = this;
+                    } else {
+                        grid.querySelectorAll('[data-type="definition"]').forEach(i => i.classList.remove('selected'));
+                        this.classList.add('selected');
+                        selectedDefinition = this;
+                    }
+
+                    // Si ambos están seleccionados, comprobar correspondencia
+                    if(selectedConcept && selectedDefinition) {
+                        const idConcept = selectedConcept.getAttribute('data-id');
+                        const idDef = selectedDefinition.getAttribute('data-id');
+                        const currentQNum = questionsRange[localPairsFound];
+
+                        if(idConcept === idDef) {
+                            selectedConcept.classList.remove('selected');
+                            selectedDefinition.classList.remove('selected');
+                            selectedConcept.classList.add('paired');
+                            selectedDefinition.classList.add('paired');
+                            
+                            localPairsFound++;
+                            updateProgress('match-q-' + currentQNum, true);
+
+                            if(localPairsFound === 5) {
+                                const f = document.getElementById(feedId);
+                                f.style.display = 'block';
+                                f.className = "feedback-box correct";
+                                f.innerText = "¡Enhorabuena! Has emparejado correctamente todas las definiciones de este bloque.";
+                            }
+                            selectedConcept = null;
+                            selectedDefinition = null;
+                        } else {
+                            // Error temporal de emparejamiento
+                            const f = document.getElementById(feedId);
+                            f.style.display = 'block';
+                            f.className = "feedback-box incorrect";
+                            f.innerText = "Emparejamiento erróneo. Los elementos no corresponden. Inténtalo de nuevo.";
+                            
+                            setTimeout(() => {
+                                if(selectedConcept) selectedConcept.classList.remove('selected');
+                                if(selectedDefinition) selectedDefinition.classList.remove('selected');
+                                selectedConcept = null;
+                                selectedDefinition = null;
+                                f.style.display = 'none';
+                            }, 1000);
+                            
+                            updateProgress('match-q-' + currentQNum, false);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Navegación del módulo de Flashcards
+        function renderFlashcard() {
+            document.getElementById('fcard').classList.remove('flipped');
+            setTimeout(() => {
+                const data = flashcardsData[currentFlashIdx];
+                document.getElementById('flash-idx').innerText = `Tarjeta ${currentFlashIdx + 1} / 55`;
+                document.getElementById('flash-q').innerText = data.q;
+                document.getElementById('flash-a').innerText = data.a;
+                document.getElementById('flash-counter').innerText = `${currentFlashIdx + 1} / 55`;
+            }, 150);
+        }
+
+        function nextCard() {
+            currentFlashIdx = (currentFlashIdx + 1) % flashcardsData.length;
+            renderFlashcard();
+        }
+
+        function prevCard() {
+            currentFlashIdx = (currentFlashIdx - 1 + flashcardsData.length) % flashcardsData.length;
+            renderFlashcard();
+        }
+    </script>
+</body>
+</html>
